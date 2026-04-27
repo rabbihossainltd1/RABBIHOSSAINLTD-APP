@@ -25,18 +25,29 @@ jobs:
 
       - name: Clean invalid resource files
         run: |
-          find app/src/main/res -name "*.js" -type f -delete || true
-          find app/src/main/res -name "h.js" -type f -delete || true
+          find . -path "*/src/main/res/*" -name "*.js" -type f -delete || true
+          find . -name "h.js" -type f -delete || true
 
-      - name: Build APK
-        run: ./gradlew clean assembleDebug assembleRelease --stacktrace --no-build-cache
+      - name: Show Gradle projects
+        run: ./gradlew projects
 
-      - name: Show APK files
-        run: find . -name "*.apk" -type f
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --stacktrace --no-build-cache
 
-      - name: Upload all APK files
+      - name: Find APK files
+        run: |
+          echo "Searching APK files..."
+          find . -name "*.apk" -type f -print
+
+      - name: Prepare artifacts
+        run: |
+          mkdir -p artifacts
+          find . -name "*.apk" -type f -exec cp {} artifacts/ \;
+          ls -la artifacts
+          test "$(find artifacts -name '*.apk' | wc -l)" -gt 0
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: RabbiHossainLTD-APK
-          path: |
-            **/build/outputs/**/*.apk
+          path: artifacts/*.apk
