@@ -28,11 +28,11 @@ jobs:
           find . -path "*/src/main/res/*" -name "*.js" -type f -delete || true
           find . -name "h.js" -type f -delete || true
 
-      - name: Show Gradle tasks
-        run: ./gradlew tasks --all
-
-      - name: Build Debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace --no-build-cache
+      - name: Build Debug APK with retry
+        run: |
+          ./gradlew :app:assembleDebug --stacktrace --no-build-cache || \
+          (echo "Gradle failed, retrying in 20 seconds..." && sleep 20 && ./gradlew :app:assembleDebug --stacktrace --no-build-cache) || \
+          (echo "Gradle failed again, final retry in 40 seconds..." && sleep 40 && ./gradlew :app:assembleDebug --stacktrace --no-build-cache)
 
       - name: Prepare APK and assetlinks
         run: |
@@ -42,7 +42,6 @@ jobs:
 
           if [ ! -f "$APK_PATH" ]; then
             echo "APK not found at $APK_PATH"
-            echo "Searching APK files..."
             find . -name "*.apk" -type f -print
             exit 1
           fi
@@ -71,7 +70,6 @@ jobs:
           ]
           EOF
 
-          echo "Generated assetlinks.json:"
           cat artifacts/assetlinks.json
 
       - name: Upload APK and assetlinks
