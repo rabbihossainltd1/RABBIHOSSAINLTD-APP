@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build Debug & Release APK
+    name: Build Debug APK
     runs-on: ubuntu-latest
 
     steps:
@@ -28,18 +28,25 @@ jobs:
           find . -path "*/src/main/res/*" -name "*.js" -type f -delete || true
           find . -name "h.js" -type f -delete || true
 
-      - name: Show Gradle projects
-        run: ./gradlew projects
+      - name: Show project structure
+        run: |
+          echo "Root files:"
+          ls -la
+          echo "Gradle files:"
+          find . -maxdepth 3 -name "*.gradle" -o -name "*.gradle.kts" -o -name "settings.gradle" -o -name "settings.gradle.kts"
+
+      - name: Show Gradle tasks
+        run: ./gradlew tasks --all
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace --no-build-cache
+        run: ./gradlew :app:assembleDebug --stacktrace --no-build-cache
 
       - name: Find APK files
         run: |
           echo "Searching APK files..."
           find . -name "*.apk" -type f -print
 
-      - name: Prepare artifacts
+      - name: Prepare APK artifact
         run: |
           mkdir -p artifacts
           find . -name "*.apk" -type f -exec cp {} artifacts/ \;
@@ -51,3 +58,4 @@ jobs:
         with:
           name: RabbiHossainLTD-APK
           path: artifacts/*.apk
+          if-no-files-found: error
