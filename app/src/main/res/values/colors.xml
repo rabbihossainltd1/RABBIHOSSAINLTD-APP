@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AMOLED Dark Theme Base -->
+    <color name="amoled_black">#FF000000</color>
+    <color name="surface_dark">#FF0D0D0D</color>
+    <color name="surface_card">#FF141414</color>
+    <color name="surface_elevated">#FF1A1A1A</color>
+
+    <!-- Neon Accents -->
+    <color name="neon_green">#FF00FF7F</color>
+    <color name="neon_green_dim">#8000FF7F</color>
+    <color name="neon_cyan">#FF00E5FF</color>
+    <color name="neon_cyan_dim">#8000E5FF</color>
+    <color name="neon_green_dark">#FF00CC63</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#99FFFFFF</color>
+    <color name="text_hint">#4DFFFFFF</color>
+
+    <!-- Status / Navigation -->
+    <color name="status_bar_color">#FF000000</color>
+    <color name="navigation_bar_color">#FF000000</color>
+
+    <!-- Progress -->
+    <color name="progress_start">#FF00FF7F</color>
+    <color name="progress_end">#FF00E5FF</color>
+</resources>
