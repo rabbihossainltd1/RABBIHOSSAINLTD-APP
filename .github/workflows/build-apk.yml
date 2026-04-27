@@ -28,27 +28,55 @@ jobs:
           find . -path "*/src/main/res/*" -name "*.js" -type f -delete || true
           find . -name "h.js" -type f -delete || true
 
-      - name: Show project structure
-        run: |
-          echo "Root files:"
-          ls -la
-          echo "Gradle files:"
-          find . -maxdepth 3 \( -name "*.gradle" -o -name "*.gradle.kts" -o -name "settings.gradle" -o -name "settings.gradle.kts" \) -print
+      - name: Show Gradle tasks
+        run: ./gradlew tasks --all
 
       - name: Build Debug APK
         run: ./gradlew :app:assembleDebug --stacktrace --no-build-cache
 
-      - name: Prepare APK artifact
+      - name: Prepare APK and assetlinks
         run: |
           mkdir -p artifacts
-          find . -name "*.apk" -type f -print -exec cp {} artifacts/ \;
-          ls -la artifacts
-          test "$(find artifacts -name '*.apk' | wc -l)" -gt 0
 
-      - name: Upload APK
+          APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
+
+          if [ ! -f "$APK_PATH" ]; then
+            echo "APK not found at $APK_PATH"
+            echo "Searching APK files..."
+            find . -name "*.apk" -type f -print
+            exit 1
+          fi
+
+          cp "$APK_PATH" artifacts/RabbiHossainLTD-debug.apk
+
+          SHA256=$(keytool -printcert -jarfile "$APK_PATH" | grep "SHA256:" | head -1 | sed 's/.*SHA256: //')
+
+          echo "Your APK SHA256 fingerprint:"
+          echo "$SHA256"
+
+          cat > artifacts/assetlinks.json <<EOF
+          [
+            {
+              "relation": [
+                "delegate_permission/common.handle_all_urls"
+              ],
+              "target": {
+                "namespace": "android_app",
+                "package_name": "com.rabbihossainltd.app",
+                "sha256_cert_fingerprints": [
+                  "$SHA256"
+                ]
+              }
+            }
+          ]
+          EOF
+
+          echo "Generated assetlinks.json:"
+          cat artifacts/assetlinks.json
+
+      - name: Upload APK and assetlinks
         uses: actions/upload-artifact@v4
         with:
-          name: RabbiHossainLTD-APK
-          path: artifacts/*.apk
+          name: RabbiHossainLTD-APK-and-AssetLinks
+          path: artifacts/*
           if-no-files-found: error
-          
